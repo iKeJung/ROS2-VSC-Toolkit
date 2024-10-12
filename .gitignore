@@ -1,0 +1,9 @@
+node_modules/
+.vscode/
+.vscode-test/
+.env
+.env.local
+out/
+*.out
+*.o
+*.so

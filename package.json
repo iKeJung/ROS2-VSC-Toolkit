@@ -6,6 +6,9 @@
   "engines": {
     "vscode": "^1.94.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alesof/ROS2-VSC-Toolkit"},
   "categories": [
     "Other"
   ],
@@ -30,17 +33,17 @@
       "activitybar": [
         {
           "id": "ros2View",
-          "title": "ROS2",
+          "title": "ROS2 Toolkit",
           "icon": "media/turtle.svg"
         }
       ]
     },
     "views": {
       "ros2View": [
-        {
-          "id": "ros2TopicsView",
-          "name": "ROS2 Topics"
-        }
+      {
+        "id": "ros2TopicsView",
+        "name": "ROS2 Topics"
+      }
       ]
     },
     "menus": {

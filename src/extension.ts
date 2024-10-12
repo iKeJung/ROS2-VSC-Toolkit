@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     const ros2TopicsProvider = new ROS2TopicsProvider();
     vscode.window.registerTreeDataProvider('ros2TopicsView', ros2TopicsProvider);
 
-    console.log('Extension "ros2-topic-viewer" is now active!');
+    // console.log('Extension "ros2-topic-viewer" is now active!');
 
     let panelList: vscode.WebviewPanel[] = [];
 
@@ -86,7 +86,7 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
 
     panel.webview.html = getWebviewContent(topic);
 
-    let process = spawn('ros2', ['topic', 'echo', topic]);
+    const process = spawn('ros2', ['topic', 'echo', topic]);
 	const process_secundary = exec('ros2 topic info ' + topic + ' --verbose');
 
     process.stdout?.on('data', (data) => {
@@ -97,11 +97,11 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
             data = 'Unable to visualize the entire message. The message is too big. \n\n';
             panel.webview.postMessage({ command: 'error', message: data.toString() });
             // process.kill();
-            return
+            return;
         }
-
+        if (data.toString().includes('fastrtps_port')) { return; } // ignore fastrtps_port messages lock and load
         panel.webview.postMessage({ command: 'update', message: data.toString() });
-
+        
     });
 
     process.stderr?.on('data', (data) => {
@@ -120,7 +120,8 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
     });
 
 	process_secundary.stdout?.on('data', (data) => {
-    
+        
+        if (data.toString().includes('fastrtps_port')) { return; }
 		panel.webview.postMessage({ command: 'pushInfo', message: data });
 		process_secundary.kill();
 
@@ -136,13 +137,14 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
     panel.onDidChangeViewState((event) => {
 
         if (event.webviewPanel.visible) {
-            process.kill();
-        }
-
-        if (event.webviewPanel.visible) {
-            process = spawn('ros2', ['topic', 'echo', topic]);
+            if(process) process.kill('SIGCONT');
+            if(process_secundary) process_secundary.kill('SIGCONT');
             updateInfoPanel(topic, panel);
-        }});
+        }else{
+            if(process) process.kill('SIGSTOP');
+            if(process_secundary) process_secundary.kill('SIGSTOP');
+        }
+    });
             
 }
 
@@ -153,7 +155,8 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
     const process_secundary = spawn('ros2', ['topic', 'bw', topic]);
 
     process.stdout?.on('data', (data) => {
-        console.log(`Data: ${data}`);
+        // console.log(`Data: ${data}`);
+        if (data.toString().includes('fastrtps_port')) { return; }
         panel.webview.postMessage({ command: 'updateHz', message: data.toString() });
 
     });
@@ -167,7 +170,7 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
 
     process.on('exit', (code) => {
 
-        console.log(`Process exited with code: ${code}`);
+        // console.log(`Process exited with code: ${code}`);
         panel.webview.postMessage({ command: 'exit', message: `The command has exited with code ${code}.` });
         // panel.dispose();
 
@@ -176,6 +179,7 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
     process_secundary.stdout?.on('data', (data) => {
     
         // console.log(`Data: ${data}`);
+        if (data.toString().includes('fastrtps_port')) { return; }
         if(data.toString().includes('Subscribed')) { return; }
         panel.webview.postMessage({ command: 'updateBw', message: data.toString() });
 
@@ -186,6 +190,18 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
         console.error(`Error: ${data}`);
         panel.webview.postMessage({ command: 'error', message: data });
 
+    });
+
+    panel.onDidChangeViewState((event) => {
+
+        if(event.webviewPanel.visible) {
+            process.kill('SIGCONT');
+            process_secundary.kill('SIGCONT');
+            return;
+        }else{
+            process.kill('SIGSTOP');
+            process_secundary.kill('SIGSTOP');
+        }
     });
 
 }

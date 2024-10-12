@@ -1,4 +1,230 @@
-"use strict";var x=Object.create;var w=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var $=Object.getOwnPropertyNames;var D=Object.getPrototypeOf,E=Object.prototype.hasOwnProperty;var C=(s,e)=>{for(var r in e)w(s,r,{get:e[r],enumerable:!0})},h=(s,e,r,i)=>{if(e&&typeof e=="object"||typeof e=="function")for(let o of $(e))!E.call(s,o)&&o!==r&&w(s,o,{get:()=>e[o],enumerable:!(i=I(e,o))||i.enumerable});return s};var g=(s,e,r)=>(r=s!=null?x(D(s)):{},h(e||!s||!s.__esModule?w(r,"default",{value:s,enumerable:!0}):r,s)),S=s=>h(w({},"__esModule",{value:!0}),s);var z={};C(z,{activate:()=>y});module.exports=S(z);var n=g(require("vscode"));var a=g(require("vscode")),b=require("child_process"),l=class{_onDidChangeTreeData=new a.EventEmitter;onDidChangeTreeData=this._onDidChangeTreeData.event;constructor(){console.log("ROS2TopicsProvider initialized")}refresh(){console.log("Refresh called"),this._onDidChangeTreeData.fire()}getChildren(e){return new Promise((r,i)=>{(0,b.exec)("ros2 topic list",(o,t,c)=>{if(o)return console.error(`Error fetching topics: ${o.message}`),i(o);if(c)return console.error(`Error: ${c}`),i(new Error(c));let p=t.split(`
-`).filter(v=>v).map(v=>{let f=new a.TreeItem(v,a.TreeItemCollapsibleState.None);return f.command={command:"ros2-topic-viewer.showMessages",title:"Show messages from ${topic}",arguments:[v]},f});r(p)})})}getTreeItem(e){return e}};var d=require("child_process"),u=require("child_process"),T=g(require("fs")),M=g(require("path"));function y(s){let e=new l;n.window.registerTreeDataProvider("ros2TopicsView",e),console.log('Extension "ros2-topic-viewer" is now active!');let r=[],i=n.commands.registerCommand("ros2-topic-viewer.refreshTopics",()=>{e.refresh(),n.window.showInformationMessage("Topics refreshed!")}),o=n.commands.registerCommand("ros2-topic-viewer.showMessages",t=>{let c=r.find(p=>p.title===`Messages for ${t}`);if(c){c.reveal(n.ViewColumn.One);return}let m=n.window.createWebviewPanel("topicMessages",`Messages for ${t}`,n.ViewColumn.One,{enableScripts:!0});r.push(m),W(t,m,r),k(t,m)});s.subscriptions.push(i),s.subscriptions.push(o)}async function _(s,e){if(e.visible===!1)return;let r=(0,u.exec)("ros2 topic info "+s+" --verbose");r.stdout?.on("data",i=>{e.webview.postMessage({command:"pushInfo",message:i.toString()}),r.kill()}),r.stderr?.on("data",i=>{console.error(`Error from process secundary: ${i}`),e.webview.postMessage({command:"error",message:i})})}async function W(s,e,r){e.onDidDispose(()=>{r.splice(r.indexOf(e),1),i&&i.kill()}),e.webview.html=P(s);let i=(0,d.spawn)("ros2",["topic","echo",s]),o=(0,u.exec)("ros2 topic info "+s+" --verbose");i.stdout?.on("data",t=>{if(t.length>1e4){t=t.slice(0,1e4),t=`Unable to visualize the entire message. The message is too big. 
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-`,e.webview.postMessage({command:"error",message:t.toString()});return}e.webview.postMessage({command:"update",message:t.toString()})}),i.stderr?.on("data",t=>{console.error(`Error: ${t}`),e.webview.postMessage({command:"error",message:t})}),i.on("exit",t=>{console.log(`Process exited with code: ${t}`),e.webview.postMessage({command:"exit",message:`The command has exited with code ${t}.`})}),o.stdout?.on("data",t=>{e.webview.postMessage({command:"pushInfo",message:t}),o.kill()}),o.stderr?.on("data",t=>{console.error(`Error from process secundary: ${t}`),e.webview.postMessage({command:"error",message:t})}),e.onDidChangeViewState(t=>{t.webviewPanel.visible&&i.kill(),t.webviewPanel.visible&&(i=(0,d.spawn)("ros2",["topic","echo",s]),_(s,e))})}async function k(s,e){e.webview.html=P(s);let r=(0,d.spawn)("ros2",["topic","hz",s]),i=(0,d.spawn)("ros2",["topic","bw",s]);r.stdout?.on("data",o=>{console.log(`Data: ${o}`),e.webview.postMessage({command:"updateHz",message:o.toString()})}),r.stderr?.on("data",o=>{console.error(`Error: ${o}`),e.webview.postMessage({command:"error",message:o})}),r.on("exit",o=>{console.log(`Process exited with code: ${o}`),e.webview.postMessage({command:"exit",message:`The command has exited with code ${o}.`})}),i.stdout?.on("data",o=>{o.toString().includes("Subscribed")||e.webview.postMessage({command:"updateBw",message:o.toString()})}),i.stderr?.on("data",o=>{console.error(`Error: ${o}`),e.webview.postMessage({command:"error",message:o})})}function P(s){let e=M.join(__dirname,"..","media","webview.html"),r=T.readFileSync(e,"utf8");return r=r.replace("${topic}",s),r}0&&(module.exports={activate});
+// src/extension.ts
+var extension_exports = {};
+__export(extension_exports, {
+  activate: () => activate
+});
+module.exports = __toCommonJS(extension_exports);
+var vscode2 = __toESM(require("vscode"));
+
+// src/topicProvider.ts
+var vscode = __toESM(require("vscode"));
+var import_child_process = require("child_process");
+var ROS2TopicsProvider = class {
+  _onDidChangeTreeData = new vscode.EventEmitter();
+  onDidChangeTreeData = this._onDidChangeTreeData.event;
+  constructor() {
+    console.log("ROS2TopicsProvider initialized");
+  }
+  refresh() {
+    console.log("Refresh called");
+    this._onDidChangeTreeData.fire();
+  }
+  getChildren(element) {
+    return new Promise((resolve, reject) => {
+      (0, import_child_process.exec)("ros2 topic list", (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error fetching topics: ${error.message}`);
+          return reject(error);
+        }
+        if (stderr) {
+          console.error(`Error: ${stderr}`);
+          return reject(new Error(stderr));
+        }
+        const topics = stdout.split("\n").filter((line) => line);
+        const treeItems = topics.map((topic) => {
+          const item = new vscode.TreeItem(topic, vscode.TreeItemCollapsibleState.None);
+          item.command = {
+            command: "ros2-topic-viewer.showMessages",
+            title: "Show messages from ${topic}",
+            arguments: [topic]
+          };
+          return item;
+        });
+        resolve(treeItems);
+      });
+    });
+  }
+  getTreeItem(element) {
+    return element;
+  }
+};
+
+// src/extension.ts
+var import_child_process2 = require("child_process");
+var import_child_process3 = require("child_process");
+var fs = __toESM(require("fs"));
+var path = __toESM(require("path"));
+function activate(context) {
+  const ros2TopicsProvider = new ROS2TopicsProvider();
+  vscode2.window.registerTreeDataProvider("ros2TopicsView", ros2TopicsProvider);
+  let panelList = [];
+  const new_disposable = vscode2.commands.registerCommand("ros2-topic-viewer.refreshTopics", () => {
+    ros2TopicsProvider.refresh();
+    vscode2.window.showInformationMessage("Topics refreshed!");
+  });
+  const showMessagesDisposable = vscode2.commands.registerCommand("ros2-topic-viewer.showMessages", (topic) => {
+    let existingPanel = panelList.find((p) => p.title === `Messages for ${topic}`);
+    if (existingPanel) {
+      existingPanel.reveal(vscode2.ViewColumn.One);
+      return;
+    }
+    const panel = vscode2.window.createWebviewPanel(
+      "topicMessages",
+      `Messages for ${topic}`,
+      vscode2.ViewColumn.One,
+      { enableScripts: true }
+    );
+    panelList.push(panel);
+    showTopicMessages(topic, panel, panelList);
+    showAdvancedMessages(topic, panel);
+  });
+  context.subscriptions.push(new_disposable);
+  context.subscriptions.push(showMessagesDisposable);
+}
+async function updateInfoPanel(topic, panel) {
+  if (panel.visible === false) {
+    return;
+  }
+  const process_secundary = (0, import_child_process3.exec)("ros2 topic info " + topic + " --verbose");
+  process_secundary.stdout?.on("data", (data) => {
+    panel.webview.postMessage({ command: "pushInfo", message: data.toString() });
+    process_secundary.kill();
+  });
+  process_secundary.stderr?.on("data", (data) => {
+    console.error(`Error from process secundary: ${data}`);
+    panel.webview.postMessage({ command: "error", message: data });
+  });
+}
+async function showTopicMessages(topic, panel, panelList) {
+  panel.onDidDispose(() => {
+    panelList.splice(panelList.indexOf(panel), 1);
+    if (process) {
+      process.kill();
+    }
+  });
+  panel.webview.html = getWebviewContent(topic);
+  const process = (0, import_child_process2.spawn)("ros2", ["topic", "echo", topic]);
+  const process_secundary = (0, import_child_process3.exec)("ros2 topic info " + topic + " --verbose");
+  process.stdout?.on("data", (data) => {
+    if (data.length > 1e4) {
+      data = data.slice(0, 1e4);
+      data = "Unable to visualize the entire message. The message is too big. \n\n";
+      panel.webview.postMessage({ command: "error", message: data.toString() });
+      return;
+    }
+    if (data.toString().includes("fastrtps_port")) {
+      return;
+    }
+    panel.webview.postMessage({ command: "update", message: data.toString() });
+  });
+  process.stderr?.on("data", (data) => {
+    console.error(`Error: ${data}`);
+    panel.webview.postMessage({ command: "error", message: data });
+  });
+  process.on("exit", (code) => {
+    console.log(`Process exited with code: ${code}`);
+    panel.webview.postMessage({ command: "exit", message: `The command has exited with code ${code}.` });
+  });
+  process_secundary.stdout?.on("data", (data) => {
+    if (data.toString().includes("fastrtps_port")) {
+      return;
+    }
+    panel.webview.postMessage({ command: "pushInfo", message: data });
+    process_secundary.kill();
+  });
+  process_secundary.stderr?.on("data", (data) => {
+    console.error(`Error from process secundary: ${data}`);
+    panel.webview.postMessage({ command: "error", message: data });
+  });
+  panel.onDidChangeViewState((event) => {
+    if (event.webviewPanel.visible) {
+      if (process) process.kill("SIGCONT");
+      if (process_secundary) process_secundary.kill("SIGCONT");
+      updateInfoPanel(topic, panel);
+    } else {
+      if (process) process.kill("SIGSTOP");
+      if (process_secundary) process_secundary.kill("SIGSTOP");
+    }
+  });
+}
+async function showAdvancedMessages(topic, panel) {
+  panel.webview.html = getWebviewContent(topic);
+  const process = (0, import_child_process2.spawn)("ros2", ["topic", "hz", topic]);
+  const process_secundary = (0, import_child_process2.spawn)("ros2", ["topic", "bw", topic]);
+  process.stdout?.on("data", (data) => {
+    if (data.toString().includes("fastrtps_port")) {
+      return;
+    }
+    panel.webview.postMessage({ command: "updateHz", message: data.toString() });
+  });
+  process.stderr?.on("data", (data) => {
+    console.error(`Error: ${data}`);
+    panel.webview.postMessage({ command: "error", message: data });
+  });
+  process.on("exit", (code) => {
+    panel.webview.postMessage({ command: "exit", message: `The command has exited with code ${code}.` });
+  });
+  process_secundary.stdout?.on("data", (data) => {
+    if (data.toString().includes("fastrtps_port")) {
+      return;
+    }
+    if (data.toString().includes("Subscribed")) {
+      return;
+    }
+    panel.webview.postMessage({ command: "updateBw", message: data.toString() });
+  });
+  process_secundary.stderr?.on("data", (data) => {
+    console.error(`Error: ${data}`);
+    panel.webview.postMessage({ command: "error", message: data });
+  });
+  panel.onDidChangeViewState((event) => {
+    if (event.webviewPanel.visible) {
+      process.kill("SIGCONT");
+      process_secundary.kill("SIGCONT");
+      return;
+    } else {
+      process.kill("SIGSTOP");
+      process_secundary.kill("SIGSTOP");
+    }
+  });
+}
+function getWebviewContent(topic) {
+  const htmlPath = path.join(__dirname, "..", "media", "webview.html");
+  let htmlContent = fs.readFileSync(htmlPath, "utf8");
+  htmlContent = htmlContent.replace("${topic}", topic);
+  return htmlContent;
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  activate
+});
+//# sourceMappingURL=extension.js.map

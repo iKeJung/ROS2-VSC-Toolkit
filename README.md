@@ -42,4 +42,4 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-Check out our robotics startup **HEROBOTS**. Our mission is to become the leaders of inspection and maintenance in constrained and hazardous environments.
+Check out our robotics startup **[HEROBOTS](https://www.herobots.eu/)**. Our mission is to become the leaders of inspection and maintenance in constrained and hazardous environments.

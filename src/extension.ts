@@ -80,6 +80,9 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
 		if (process){
 			process.kill();
 		}
+        if (process_secundary){
+            process_secundary.kill();
+        }
 
 	});
 
@@ -137,12 +140,12 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
     panel.onDidChangeViewState((event) => {
 
         if (event.webviewPanel.visible) {
-            if(process) process.kill('SIGCONT');
-            if(process_secundary) process_secundary.kill('SIGCONT');
+            if(process) {process.kill('SIGCONT');}
+            if(process_secundary) {process_secundary.kill('SIGCONT');}
             updateInfoPanel(topic, panel);
         }else{
-            if(process) process.kill('SIGSTOP');
-            if(process_secundary) process_secundary.kill('SIGSTOP');
+            if(process) {process.kill('SIGSTOP');}
+            if(process_secundary){ process_secundary.kill('SIGSTOP');}
         }
     });
             
@@ -153,6 +156,17 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
     panel.webview.html = getWebviewContent(topic);
     const process = spawn('ros2', ['topic', 'hz', topic]);
     const process_secundary = spawn('ros2', ['topic', 'bw', topic]);
+
+    panel.onDidDispose(() => {
+            
+            if (process) {
+                process.kill();
+            }
+            if (process_secundary) {
+                process_secundary.kill();
+            }
+    
+        });
 
     process.stdout?.on('data', (data) => {
         // console.log(`Data: ${data}`);

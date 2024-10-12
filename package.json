@@ -1,5 +1,6 @@
 {
   "name": "ros2-topic-viewer",
+  "publisher": "AlessandroSofia",
   "displayName": "ROS2 Topic Viewer",
   "description": "List and manage topics from VSCode",
   "version": "0.0.1",

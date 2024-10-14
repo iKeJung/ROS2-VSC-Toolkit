@@ -4,7 +4,7 @@
   "displayName": "ROS2 Topic Viewer",
   "icon": "media/main-icon.jpg",
   "description": "List and manage topics from VSCode",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.94.0"
   },

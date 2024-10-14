@@ -253,6 +253,7 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
         if(event.webviewPanel.visible) {
             process.kill('SIGCONT');
             process_secundary.kill('SIGCONT');
+            panel.webview.postMessage({ command: 'showAdvanced', message: 'Advanced mode enabled!' });
             return;
         }else{
             process.kill('SIGSTOP');

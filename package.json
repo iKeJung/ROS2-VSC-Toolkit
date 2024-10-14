@@ -2,6 +2,7 @@
   "name": "ros2-topic-viewer",
   "publisher": "AlessandroSofia",
   "displayName": "ROS2 Topic Viewer",
+  "icon": "media/main-icon.jpg",
   "description": "List and manage topics from VSCode",
   "version": "0.0.1",
   "engines": {
@@ -28,6 +29,14 @@
       {
         "command": "ros2-topic-viewer.showMessages",
         "title": "Show Messages from Topic"
+      },
+      {
+        "command": "ros2-topic-viewer.toggleAdvanced",
+        "title": "Toggle Advanced Topic Options",
+        "icon": {
+          "light": "media/toggle-advanced-dark.svg",
+          "dark": "media/toggle-advanced-dark.svg"
+        }
       }
     ],
     "viewsContainers": {
@@ -51,6 +60,11 @@
       "view/title": [
         {
           "command": "ros2-topic-viewer.refreshTopics",
+          "when": "view == ros2TopicsView",
+          "group": "navigation"
+        },
+        {
+          "command": "ros2-topic-viewer.toggleAdvanced",
           "when": "view == ros2TopicsView",
           "group": "navigation"
         }

@@ -5,6 +5,8 @@ export class ROS2TopicsProvider implements vscode.TreeDataProvider<vscode.TreeIt
     private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
+    private _advancedMode: boolean = false;
+
     constructor() {
         console.log('ROS2TopicsProvider initialized');
     }
@@ -12,6 +14,16 @@ export class ROS2TopicsProvider implements vscode.TreeDataProvider<vscode.TreeIt
     refresh(): void {
         console.log('Refresh called');
         this._onDidChangeTreeData.fire();
+    }
+
+    toggleAdvanced() : boolean {
+        console.log('Advanced mode toggled');
+        this._advancedMode = !this._advancedMode;
+        return this._advancedMode;
+    }
+
+    getAdvancedMode() : boolean {
+        return this._advancedMode;
     }
 
     getChildren(element?: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem[]> {

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages</title>
     <style>
+        /* Set box-sizing to border-box for all elements */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #1e1e1e; 
@@ -25,6 +29,7 @@
         }
         #container {
             display: flex; 
+            flex: 1; /* Allow container to grow */
             gap: 20px; 
         }
         #messageContainer {
@@ -35,40 +40,52 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
             flex: 1; 
             min-width: 200px; 
-            height: 500px;  /* Fixed height */
-            overflow-y: auto;  /* Enable vertical scrolling */
-            white-space: pre-wrap; /* Preserve whitespace */
+            max-height: 500px; /* Maximum height */
+            overflow-y: auto; 
+            white-space: pre-wrap; 
             word-wrap: break-word; 
         }
         .info-container {
             display: flex; 
             flex-direction: column; 
             flex: 1; 
-            gap: 10px; 
+            max-height: 500px; /* Set a maximum height */
         }
-        #topicInfoContainer, #advancedInfoContainer, #advancedInfoContainer2 {
+        #topicInfoContainer {
             background-color: #2c2c2c; 
             border-radius: 8px; 
             border: 1px solid #4ecdc4; 
             padding: 10px; 
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
-            height: 320px; /* Adjust height as necessary */
-            overflow-y: auto; /* Enable vertical scrolling */
-            white-space: pre-wrap; /* Preserve whitespace */
+            flex: 1; /* Use flex to adjust height based on content */
+            overflow-y: auto; 
+            white-space: pre-wrap; 
             word-wrap: break-word; 
+            max-height: 500px; /* Maximum height for topic info */
         }
         #advancedInfoContainer, #advancedInfoContainer2 {
-            height: 60px;
+            background-color: #2c2c2c; 
+            border-radius: 8px; 
+            border: 1px solid #4ecdc4; 
+            padding: 10px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
+            height: 40px; /* Fixed height for advanced info containers */
+            overflow-y: auto; 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            min-height: 80px;
+            display: none; /* Start hidden */
+            margin-top: 10px; /* Space between advanced containers */
         }
         #messageContainer, #topicInfoContainer, #advancedInfoContainer, #advancedInfoContainer2 {
-            scrollbar-width: none; /* Hide scrollbar */
+            scrollbar-width: none; 
         }
         .bold-techy {
-            color: #00FFFF; /* Bright cyan for techy feel */
+            color: #00FFFF; 
             font-weight: bold;
         }
         .bold-error {
-            color: #ff2a00; /* Rossostronzo */
+            color: #ff2a00; 
             font-weight: bold;
         }
         .footer {
@@ -85,7 +102,7 @@
     <h1>Messages for ${topic}</h1>
     <div id="container">
         <div id="messageContainer"></div>
-        <div class="info-container"> <!-- New wrapper for the info containers -->
+        <div class="info-container"> 
             <div id="topicInfoContainer"></div>
             <div id="advancedInfoContainer"></div>
             <div id="advancedInfoContainer2"></div>
@@ -98,19 +115,30 @@
         const topicInfoContainer = document.getElementById('topicInfoContainer');
         const advancedInfoContainer = document.getElementById('advancedInfoContainer');
         const advancedInfoContainer2 = document.getElementById('advancedInfoContainer2');
-        
+
         // Function to make text before a colon bold
         function boldBeforeColon(text) {
-            return text.replace(/([^\n:]+):/g, '<span class="bold-techy">$1:</span>'); // Apply bold class
+            return text.replace(/([^\n:]+):/g, '<span class="bold-techy">$1:</span>');
         }
 
         // Function to format messages specifically for average rate
         function formatAverageRate(text) {
-            // Specific regex for average rate line
-            const averageRatePattern = /(average rate:)\s*([0-9.]+)/; // Matches average rate and its value
-            
-            // Replace average rate line
+            const averageRatePattern = /(average rate:)\s*([0-9.]+)/;
             return text.replace(averageRatePattern, '<span class="bold-techy">$1</span> $2');
+        }
+
+        function boldBeforeMatch(text) {
+            return text.replace(/(.+KB\/s)/, '<span class="bold-techy">$1</span>');
+        }
+
+        function adjustContainerSizes(isAdvanced) {
+            if (isAdvanced) {
+                advancedInfoContainer.style.display = 'block';
+                advancedInfoContainer2.style.display = 'block';
+            } else {
+                advancedInfoContainer.style.display = 'none';
+                advancedInfoContainer2.style.display = 'none';
+            }
         }
 
         // Handle message updates
@@ -123,8 +151,14 @@
                 case 'updateHz':
                     advancedInfoContainer.innerHTML = formatAverageRate(message.message);
                     break;
+                case 'clearHz':
+                    advancedInfoContainer.innerHTML = '';
+                    break;
                 case 'updateBw':
-                    advancedInfoContainer2.innerHTML = boldBeforeColon(message.message);
+                    advancedInfoContainer2.innerHTML = boldBeforeMatch(message.message);
+                    break;
+                case 'clearBw':
+                    advancedInfoContainer2.innerHTML = '';
                     break;
                 case 'pushInfo':
                     topicInfoContainer.innerHTML += boldBeforeColon(message.message.replace(/_ros2cli_\d+/g, 'ros2-topic-viewer'));
@@ -132,6 +166,12 @@
                 case 'error':
                     console.error(message.message);
                     messageContainer.innerHTML = `<span class="bold-error">Error:</span> ${message.message}`;
+                    break;
+                case 'showAdvanced':
+                    adjustContainerSizes(true); // Enable advanced mode
+                    break;
+                case 'hideAdvanced':
+                    adjustContainerSizes(false); // Disable advanced mode
                     break;
             }
         });

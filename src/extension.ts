@@ -11,17 +11,22 @@ export function activate(context: vscode.ExtensionContext) {
     const ros2TopicsProvider = new ROS2TopicsProvider();
     vscode.window.registerTreeDataProvider('ros2TopicsView', ros2TopicsProvider);
 
-    // console.log('Extension "ros2-topic-viewer" is now active!');
-
     let panelList: vscode.WebviewPanel[] = [];
+    const max_panels = 4;
 
     const new_disposable = vscode.commands.registerCommand('ros2-topic-viewer.refreshTopics', () => {
         ros2TopicsProvider.refresh();
         vscode.window.showInformationMessage('Topics refreshed!');
+        
     });
 
     const showMessagesDisposable = vscode.commands.registerCommand('ros2-topic-viewer.showMessages', (topic: string) => {
         
+        if(panelList.length>=max_panels){
+            vscode.window.showErrorMessage('Reached maximum number of panels! Please close a panel to open a new one.');
+            return;
+        }
+
         let existingPanel = panelList.find(p => p.title === `Messages for ${topic}`);
 
         if (existingPanel) {
@@ -40,12 +45,36 @@ export function activate(context: vscode.ExtensionContext) {
 
         panelList.push(panel);
         showTopicMessages(topic, panel, panelList);
-        showAdvancedMessages(topic, panel);
+
+        if(ros2TopicsProvider.getAdvancedMode()){
+            showAdvancedMessages(topic, panel);
+        }
         
+    });
+
+    const toggleAdvancedDisposable = vscode.commands.registerCommand('ros2-topic-viewer.toggleAdvanced', () => {
+
+        const advancedMode = ros2TopicsProvider.toggleAdvanced();
+        if(advancedMode){
+            vscode.window.showInformationMessage('Advanced mode enabled! Close panels to apply.');
+        }
+        else{
+            vscode.window.showInformationMessage('Advanced mode disabled! Close panels to apply.');
+        }
+
+        // TODO: in impostazioni aggiungere un flag per chiudere automaticamente i pannelli
+        // while(panelList.length>0){
+        //     const panel = panelList.pop();
+        //     if (panel) {
+        //         panel.dispose();
+        //     }
+        // }
+
     });
 
     context.subscriptions.push(new_disposable);
     context.subscriptions.push(showMessagesDisposable);
+    context.subscriptions.push(toggleAdvancedDisposable);
 }
 
 async function updateInfoPanel(topic: string, panel: vscode.WebviewPanel) {
@@ -75,17 +104,22 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
 
 	panel.onDidDispose(() => {
 
+        console.log('Disposing panel');
+        // console.log('indexof: ' + panelList.indexOf(panel));
+
         panelList.splice(panelList.indexOf(panel), 1);
 
 		if (process){
-			process.kill();
+            // console.log('Sending SIGTERM to process');
+            process.kill('SIGCONT');
+            process.kill('SIGTERM');  
 		}
         if (process_secundary){
-            process_secundary.kill();
+            process_secundary.kill('SIGCONT');
+            process_secundary.kill('SIGTERM');
         }
 
 	});
-
 
     panel.webview.html = getWebviewContent(topic);
 
@@ -148,24 +182,33 @@ async function showTopicMessages(topic: string, panel: vscode.WebviewPanel, pane
             if(process_secundary){ process_secundary.kill('SIGSTOP');}
         }
     });
+
+    panel.webview.postMessage({ command: 'hideAdvanced', message: 'Advanced mode disabled!' });
+
             
 }
 
 async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
 
     panel.webview.html = getWebviewContent(topic);
+    // console.log('showing advanced messages');
     const process = spawn('ros2', ['topic', 'hz', topic]);
     const process_secundary = spawn('ros2', ['topic', 'bw', topic]);
 
+    panel.webview.postMessage({ command: 'showAdvanced', message: 'Advanced mode enabled!' });
+
     panel.onDidDispose(() => {
             
-            if (process) {
-                process.kill();
+            if (process){
+                // console.log('Sending SIGTERM to process');
+                process.kill('SIGCONT');
+                process.kill('SIGTERM');  
             }
-            if (process_secundary) {
-                process_secundary.kill();
+            if (process_secundary){
+                process_secundary.kill('SIGCONT');
+                process_secundary.kill('SIGTERM');
             }
-    
+
         });
 
     process.stdout?.on('data', (data) => {
@@ -176,7 +219,6 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
     });
 
     process.stderr?.on('data', (data) => {
-
         console.error(`Error: ${data}`);
         panel.webview.postMessage({ command: 'error', message: data });
 
@@ -184,7 +226,7 @@ async function showAdvancedMessages(topic: string, panel: vscode.WebviewPanel) {
 
     process.on('exit', (code) => {
 
-        // console.log(`Process exited with code: ${code}`);
+        console.log(`Process exited with code: ${code}`);
         panel.webview.postMessage({ command: 'exit', message: `The command has exited with code ${code}.` });
         // panel.dispose();
 

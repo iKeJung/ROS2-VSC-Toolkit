@@ -12,7 +12,7 @@
 
 ## Upcoming Features
 
-We are working to ship new features for ROS2 development:
+We are evaluating the possibility to ship new features for ROS2 development:
 - **Topic filtering**
 - **Message Scheme inspection**
 - **Direct publishing**
@@ -34,7 +34,7 @@ We are working to ship new features for ROS2 development:
 
 ## Contributing
 
-Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request on the [GitHub repository](https://github.com/alesof/ros2-topic-viewer).
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request on the [GitHub repository](https://github.com/alesof/ROS2-VSC-Toolkit).
 
 ## License
 

@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
 import { ROS2TopicsProvider } from './topicProvider';
+import { ext_title, ext_name } from './common';
+
 import { spawn } from 'child_process';
 import { exec } from 'child_process';
 
@@ -14,13 +16,13 @@ export function activate(context: vscode.ExtensionContext) {
     let panelList: vscode.WebviewPanel[] = [];
     const max_panels = 4;
 
-    const new_disposable = vscode.commands.registerCommand('ros2-topic-viewer.refreshTopics', () => {
+    const new_disposable = vscode.commands.registerCommand(`${ext_name}.refreshTopics`, () => {
         ros2TopicsProvider.refresh();
-        vscode.window.showInformationMessage('Topics refreshed!');
+        vscode.window.showInformationMessage(ext_title + ': Topics refreshed!');
         
     });
 
-    const showMessagesDisposable = vscode.commands.registerCommand('ros2-topic-viewer.showMessages', (topic: string) => {
+    const showMessagesDisposable = vscode.commands.registerCommand(`${ext_name}.showMessages`, (topic: string) => {
         
         if(panelList.length>=max_panels){
             vscode.window.showErrorMessage('Reached maximum number of panels! Please close a panel to open a new one.');
@@ -52,14 +54,14 @@ export function activate(context: vscode.ExtensionContext) {
         
     });
 
-    const toggleAdvancedDisposable = vscode.commands.registerCommand('ros2-topic-viewer.toggleAdvanced', () => {
+    const toggleAdvancedDisposable = vscode.commands.registerCommand(`${ext_name}.toggleAdvanced`, () => {
 
         const advancedMode = ros2TopicsProvider.toggleAdvanced();
         if(advancedMode){
-            vscode.window.showInformationMessage('Advanced mode enabled! Close panels to apply.');
+            vscode.window.showInformationMessage(ext_title + ': Advanced mode enabled! Close panels to apply.');
         }
         else{
-            vscode.window.showInformationMessage('Advanced mode disabled! Close panels to apply.');
+            vscode.window.showInformationMessage(ext_title + ': Advanced mode disabled! Close panels to apply.');
         }
 
         // TODO: in impostazioni aggiungere un flag per chiudere automaticamente i pannelli

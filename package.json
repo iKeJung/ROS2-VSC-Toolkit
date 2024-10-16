@@ -21,18 +21,16 @@
       {
         "command": "ros2-topic-viewer.refreshTopics",
         "title": "Refresh Topics",
+        "category": "ROS2",
         "icon": {
             "light": "media/reload-light.svg",
             "dark": "media/reload-dark.svg"
           }
       },
       {
-        "command": "ros2-topic-viewer.showMessages",
-        "title": "Show Messages from Topic"
-      },
-      {
         "command": "ros2-topic-viewer.toggleAdvanced",
         "title": "Toggle Advanced Topic Options",
+        "category": "ROS2",
         "icon": {
           "light": "media/toggle-advanced-dark.svg",
           "dark": "media/toggle-advanced-dark.svg"
@@ -43,7 +41,7 @@
       "activitybar": [
         {
           "id": "ros2View",
-          "title": "ROS2 Toolkit",
+          "title": "ROS2",
           "icon": "media/turtle.svg"
         }
       ]

@@ -4,11 +4,19 @@
 
 `ros2-topic-viewer` is a Visual Studio Code extension that allows users to easily view and interact with ROS2 topics directly within the editor. This extension is designed to streamline the development process for ROS2 applications by providing a convenient and integrated way to monitor and debug topics. 
 
+<div align="center">
+    <img src="media/extension_screenshot.png" alt="Extension Screenshot" width="60%">
+</div>
+
 ## Features
 
 - **Topic List**: View a list of all available ROS2 topics.
 - **Message Inspection**: Monitor the messages being published on a selected topic.
 - **Advanced Monitoring**: Inspect bandwith and info an a selected topic.
+
+## Acknowledgements
+
+Check out our robotics startup **[HEROBOTS](https://www.herobots.eu/)**. Our mission is to become the leaders of inspection and maintenance in constrained and hazardous environments.
 
 ## Upcoming Features
 
@@ -32,6 +40,8 @@ We are evaluating the possibility to ship new features for ROS2 development:
 4. Click on a topic to open a new panel containing all available data.
 5. Click on the upper right corner in the Explorer Tab to Refresh topics.
 
+> **NOTE:** After toggling the advanced options you must reopen the topic window to see the changes!
+
 ## Contributing
 
 Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request on the [GitHub repository](https://github.com/alesof/ROS2-VSC-Toolkit).
@@ -39,7 +49,3 @@ Contributions are welcome! If you have any suggestions, bug reports, or feature 
 ## License
 
 This project is licensed under the MIT License.
-
-## Acknowledgements
-
-Check out our robotics startup **[HEROBOTS](https://www.herobots.eu/)**. Our mission is to become the leaders of inspection and maintenance in constrained and hazardous environments.

@@ -5,7 +5,7 @@
 `ros2-topic-viewer` is a Visual Studio Code extension that allows users to easily view and interact with ROS2 topics directly within the editor. This extension is designed to streamline the development process for ROS2 applications by providing a convenient and integrated way to monitor and debug topics. 
 
 <div align="center">
-    <img src="media/extension_screenshot.png" alt="Extension Screenshot" width="60%">
+    <img src="media/extension_screenshot.png" alt="Extension Screenshot" width="100%">
 </div>
 
 ## Features

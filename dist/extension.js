@@ -87,6 +87,10 @@ var ROS2TopicsProvider = class {
   }
 };
 
+// src/common.ts
+var ext_name = "ros2-topic-viewer";
+var ext_title = "ROS2 Topic Viewer";
+
 // src/extension.ts
 var import_child_process2 = require("child_process");
 var import_child_process3 = require("child_process");
@@ -97,11 +101,11 @@ function activate(context) {
   vscode2.window.registerTreeDataProvider("ros2TopicsView", ros2TopicsProvider);
   let panelList = [];
   const max_panels = 4;
-  const new_disposable = vscode2.commands.registerCommand("ros2-topic-viewer.refreshTopics", () => {
+  const new_disposable = vscode2.commands.registerCommand(`${ext_name}.refreshTopics`, () => {
     ros2TopicsProvider.refresh();
-    vscode2.window.showInformationMessage("Topics refreshed!");
+    vscode2.window.showInformationMessage(ext_title + ": Topics refreshed!");
   });
-  const showMessagesDisposable = vscode2.commands.registerCommand("ros2-topic-viewer.showMessages", (topic) => {
+  const showMessagesDisposable = vscode2.commands.registerCommand(`${ext_name}.showMessages`, (topic) => {
     if (panelList.length >= max_panels) {
       vscode2.window.showErrorMessage("Reached maximum number of panels! Please close a panel to open a new one.");
       return;
@@ -123,12 +127,12 @@ function activate(context) {
       showAdvancedMessages(topic, panel);
     }
   });
-  const toggleAdvancedDisposable = vscode2.commands.registerCommand("ros2-topic-viewer.toggleAdvanced", () => {
+  const toggleAdvancedDisposable = vscode2.commands.registerCommand(`${ext_name}.toggleAdvanced`, () => {
     const advancedMode = ros2TopicsProvider.toggleAdvanced();
     if (advancedMode) {
-      vscode2.window.showInformationMessage("Advanced mode enabled! Close panels to apply.");
+      vscode2.window.showInformationMessage(ext_title + ": Advanced mode enabled! Close panels to apply.");
     } else {
-      vscode2.window.showInformationMessage("Advanced mode disabled! Close panels to apply.");
+      vscode2.window.showInformationMessage(ext_title + ": Advanced mode disabled! Close panels to apply.");
     }
   });
   context.subscriptions.push(new_disposable);
@@ -262,6 +266,7 @@ async function showAdvancedMessages(topic, panel) {
     if (event.webviewPanel.visible) {
       process.kill("SIGCONT");
       process_secundary.kill("SIGCONT");
+      panel.webview.postMessage({ command: "showAdvanced", message: "Advanced mode enabled!" });
       return;
     } else {
       process.kill("SIGSTOP");

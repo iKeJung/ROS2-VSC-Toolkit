@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const showMessagesDisposable = vscode.commands.registerCommand(`${ext_name}.showMessages`, (topic: string) => {
         
-        if(panelList.length>=max_panels){
+        if(panelList.length>=max_panels && config.get<boolean>('panelLimitSetting')){
             vscode.window.showErrorMessage('Reached maximum number of panels! Please close a panel to open a new one.');
             return;
         }
@@ -74,9 +74,29 @@ export function activate(context: vscode.ExtensionContext) {
 
     });
 
+    const togglePanelLimitDisposable = vscode.commands.registerCommand(`${ext_name}.togglePanelLimit`, () => {
+
+        togglePanelLimit();
+
+    });
+
     context.subscriptions.push(new_disposable);
     context.subscriptions.push(showMessagesDisposable);
     context.subscriptions.push(toggleAdvancedDisposable);
+    context.subscriptions.push(togglePanelLimitDisposable);
+}
+
+async function togglePanelLimit(){
+
+    try{
+        const config = vscode.workspace.getConfiguration(ext_name);
+        const panelLimit = config.get<boolean>('panelLimitSetting');
+        await config.update('panelLimitSetting', !panelLimit, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage('The panel limit setting is now set to: ' + config.get<boolean>('panelLimitSetting'));
+    }catch(err){
+        vscode.window.showErrorMessage('Error: ' + err);
+    }
+    
 }
 
 async function updateInfoPanel(topic: string, panel: vscode.WebviewPanel) {

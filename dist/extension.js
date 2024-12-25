@@ -106,7 +106,7 @@ function activate(context) {
     vscode2.window.showInformationMessage(ext_title + ": Topics refreshed!");
   });
   const showMessagesDisposable = vscode2.commands.registerCommand(`${ext_name}.showMessages`, (topic) => {
-    if (panelList.length >= max_panels) {
+    if (panelList.length >= max_panels && config.get("panelLimitSetting")) {
       vscode2.window.showErrorMessage("Reached maximum number of panels! Please close a panel to open a new one.");
       return;
     }
@@ -135,9 +135,23 @@ function activate(context) {
       vscode2.window.showInformationMessage(ext_title + ": Advanced mode disabled! Close panels to apply.");
     }
   });
+  const togglePanelLimitDisposable = vscode2.commands.registerCommand(`${ext_name}.togglePanelLimit`, () => {
+    togglePanelLimit();
+  });
   context.subscriptions.push(new_disposable);
   context.subscriptions.push(showMessagesDisposable);
   context.subscriptions.push(toggleAdvancedDisposable);
+  context.subscriptions.push(togglePanelLimitDisposable);
+}
+async function togglePanelLimit() {
+  try {
+    const config2 = vscode2.workspace.getConfiguration(ext_name);
+    const panelLimit = config2.get("panelLimitSetting");
+    await config2.update("panelLimitSetting", !panelLimit, vscode2.ConfigurationTarget.Global);
+    vscode2.window.showInformationMessage("The panel limit setting is now set to: " + config2.get("panelLimitSetting"));
+  } catch (err) {
+    vscode2.window.showErrorMessage("Error: " + err);
+  }
 }
 async function updateInfoPanel(topic, panel) {
   if (panel.visible === false) {

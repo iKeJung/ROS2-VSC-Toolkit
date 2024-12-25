@@ -4,7 +4,7 @@
   "displayName": "ROS2 Topic Viewer",
   "icon": "media/main-icon.jpg",
   "description": "List and manage topics from VSCode",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -35,8 +35,24 @@
           "light": "media/toggle-advanced-dark.svg",
           "dark": "media/toggle-advanced-dark.svg"
         }
+      },
+      {
+        "command": "ros2-topic-viewer.togglePanelLimit",
+        "title": "Toggle Panel Limit Setting",
+        "category": "ROS2"
       }
     ],
+    "configuration": {
+      "type": "object",
+      "title": "Extension Settings",
+      "properties": {
+        "ros2-topic-viewer.panelLimitSetting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Disable max panels limit"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {

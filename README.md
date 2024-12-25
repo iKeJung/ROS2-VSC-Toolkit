@@ -42,6 +42,8 @@ We are evaluating the possibility to ship new features for ROS2 development:
 
 > **NOTE:** After toggling the advanced options you must reopen the topic window to see the changes!
 
+> **SETTINGS:** To remove the limit on the number of maximum panels use the command palette (ctrl+shift+P), then write "ROS2" and select the "Toggle Panel Limit" option.
+
 ## Contributing
 
 Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request on the [GitHub repository](https://github.com/alesof/ROS2-VSC-Toolkit).
